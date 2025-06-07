@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Monitoring Potensiometer</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <h1>Data Potensiometer</h1>
+    <p>Pot1: <span id="pot1" class="nilai">0</span></p>
+    <p>Pot2: <span id="pot2" class="nilai">0</span></p>
+    <p>Pot3: <span id="pot3" class="nilai">0</span></p>
+    <p>RSSI: <span id="rssi" class="nilai">0</span></p>
+    <p>Last Update: <span id="time">-</span></p>
+    <!-- Display broken tower message when any value is above 500 -->
+    <div class="isbroken" style="margin: 15px 0; font-size: 18px;"></div>
+    <div>
+      <button id="saveButton" style="padding: 10px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Save to History</button>
+    </div>
+    
+    <div style="margin-top: 30px;">
+      <h2>History Data</h2>
+      <button id="refreshButton" style="padding: 8px 12px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 10px;">Refresh Data</button>
+      <div class="table-container" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tower 1</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tower 2</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tower 3</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">RSSI</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- Data will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="mqtt.js"></script>
+  </body>
+</html>

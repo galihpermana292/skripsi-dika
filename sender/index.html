@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sensor Data Sender</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .status {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sensor Data Sender</h1>
+    <div class="form-container">
+      <div class="form-group">
+        <label for="tower1">Tower 1:</label>
+        <input type="number" id="tower1" name="tower1" required />
+      </div>
+      <div class="form-group">
+        <label for="tower2">Tower 2:</label>
+        <input type="number" id="tower2" name="tower2" required />
+      </div>
+      <div class="form-group">
+        <label for="tower3">Tower 3:</label>
+        <input type="number" id="tower3" name="tower3" required />
+      </div>
+      <div class="form-group">
+        <label for="rssi">RSSI:</label>
+        <input type="number" id="rssi" name="rssi" required />
+      </div>
+      <button id="sendButton">Send Data</button>
+    </div>
+    <div id="status" class="status" style="display: none"></div>
+
+    <script>
+      // Connect to MQTT broker
+      const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
+      console.log("sender");
+      client.on("connect", () => {
+        console.log("Connected to MQTT Kontol broker");
+        showStatus("Connected to MQTT broker", "success");
+      });
+
+      client.on("error", (error) => {
+        console.error("Connection error:", error);
+        showStatus("Connection error: " + error.message, "error");
+      });
+
+      // Send data function
+      document
+        .getElementById("sendButton")
+        .addEventListener("click", function () {
+          // Get values from form
+          const tower1 = document.getElementById("tower1").value;
+          const tower2 = document.getElementById("tower2").value;
+          const tower3 = document.getElementById("tower3").value;
+          const rssi = document.getElementById("rssi").value;
+
+          // Validate inputs
+          if (!tower1 || !tower2 || !tower3 || !rssi) {
+            showStatus("Please fill in all fields", "error");
+            return;
+          }
+
+          try {
+            // Send data to respective topics
+            client.publish(
+              "sensor/pot1",
+              JSON.stringify({ nilai: parseInt(tower1) })
+            );
+            client.publish(
+              "sensor/pot2",
+              JSON.stringify({ nilai: parseInt(tower2) })
+            );
+            client.publish(
+              "sensor/pot3",
+              JSON.stringify({ nilai: parseInt(tower3) })
+            );
+            client.publish(
+              "sensor/rssi",
+              JSON.stringify({ nilai: parseInt(rssi) })
+            );
+
+            showStatus("Data sent successfully!", "success");
+            console.log("Data sent:", { tower1, tower2, tower3, rssi });
+          } catch (error) {
+            showStatus("Error sending data: " + error.message, "error");
+            console.error("Error sending data:", error);
+          }
+        });
+
+      // Helper function to show status messages
+      function showStatus(message, type) {
+        const statusElement = document.getElementById("status");
+        statusElement.textContent = message;
+        statusElement.className = "status " + type;
+        statusElement.style.display = "block";
+
+        // Hide status after 5 seconds
+        setTimeout(() => {
+          statusElement.style.display = "none";
+        }, 5000);
+      }
+    </script>
+  </body>
+</html>
