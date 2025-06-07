@@ -115,7 +115,9 @@ function saveToHistory() {
     rssi: parseInt(currentValues.rssi),
   };
 
-  fetch("http://localhost:5000/api/data", {
+  // https://skripsi-dika-production.up.railway.app/ atau
+  // localhost:5000
+  fetch("https://skripsi-dika-production.up.railway.app/api/data", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
