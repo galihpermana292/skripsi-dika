@@ -151,7 +151,7 @@ function fetchHistoryData() {
   tableBody.innerHTML =
     '<tr><td colspan="5" style="text-align: center; padding: 10px;">Loading data...</td></tr>';
 
-  fetch("http://localhost:5000/api/data")
+  fetch("https://skripsi-dika-production.up.railway.app/api/data")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
