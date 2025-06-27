@@ -11,6 +11,9 @@ let currentValues = {
   rssi3: 0,
 };
 
+
+let brokenGardu = [];
+
 client.on("connect", () => {
   console.log("Terhubung ke MQTT broker");
   client.subscribe("sensor/pot1");  // Gardu A
@@ -56,8 +59,10 @@ client.on("message", (topic, message) => {
       case "sensor/rssi3":
         document.getElementById("rssi3").innerText = data.nilai;
         currentValues.rssi3 = data.nilai;
+    brokenGardu = []
         break;
     }
+    console.log('tesr')
     updateTime(); // update waktu setiap ada data masuk
   } catch (e) {
     console.error("Pesan MQTT bukan JSON valid:", message.toString());
@@ -72,19 +77,26 @@ function updateTime() {
 // Function to check if gardu value is 0 (broken)
 function checkGarduStatus(garduNumber, value) {
   const isBrokenElement = document.querySelector(".isbroken");
-  const garduName = garduNumber === 1 ? 'A' : garduNumber === 2 ? 'B' : 'C';
-
+  const garduName = garduNumber === 1? 'A' : garduNumber === 2 ? 'B' : 'C';
   if (value === 0) {
-    isBrokenElement.textContent = `Ada kerusakan pada Gardu ${garduName}`;
+
+    brokenGardu.push(garduName)
+
+    isBrokenElement.textContent = `Ada kerusakan pada Gardu ${brokenGardu?.join(', ')}`
     isBrokenElement.style.color = "red";
     isBrokenElement.style.fontWeight = "bold";
-  } else {
-    // Check if any other gardu is broken
-    const otherBrokenGardu = checkOtherGardus(garduNumber);
-    if (!otherBrokenGardu) {
-      isBrokenElement.textContent = "";
-    }
+
   }
+  
+  // else {
+  //   // Check if any other gardu is broken
+  //   const otherBrokenGardu = checkOtherGardus(garduNumber);
+  //   if (!otherBrokenGardu) {
+  //     isBrokenElement.textContent = "";
+  //   }
+  // }
+
+
 }
 
 // Helper function to check if other gardus are broken
