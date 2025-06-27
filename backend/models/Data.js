@@ -13,7 +13,15 @@ const DataSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  rssi: {
+  rssi1: {
+    type: Number,
+    required: true
+  },
+  rssi2: {
+    type: Number,
+    required: true
+  },
+  rssi3: {
     type: Number,
     required: true
   },

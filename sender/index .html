@@ -70,8 +70,16 @@
         <input type="number" id="tower3" name="tower3" required />
       </div>
       <div class="form-group">
-        <label for="rssi">RSSI:</label>
-        <input type="number" id="rssi" name="rssi" required />
+        <label for="rssi1">RSSI1:</label>
+        <input type="number" id="rssi1" name="rssi1" required />
+      </div>
+      <div class="form-group">
+        <label for="rssi2">RSSI2:</label>
+        <input type="number" id="rssi2" name="rssi2" required />
+      </div>
+      <div class="form-group">
+        <label for="rssi3">RSSI3:</label>
+        <input type="number" id="rssi3" name="rssi3" required />
       </div>
       <button id="sendButton">Send Data</button>
     </div>
@@ -99,10 +107,11 @@
           const tower1 = document.getElementById("tower1").value;
           const tower2 = document.getElementById("tower2").value;
           const tower3 = document.getElementById("tower3").value;
-          const rssi = document.getElementById("rssi").value;
-
+          const rssi1 = document.getElementById("rssi1").value;
+          const rssi2 = document.getElementById("rssi2").value;
+          const rssi3 = document.getElementById("rssi3").value;
           // Validate inputs
-          if (!tower1 || !tower2 || !tower3 || !rssi) {
+          if (!tower1 || !tower2 || !tower3 || !rssi1 || !rssi2 || !rssi3) {
             showStatus("Please fill in all fields", "error");
             return;
           }
@@ -122,12 +131,20 @@
               JSON.stringify({ nilai: parseInt(tower3) })
             );
             client.publish(
-              "sensor/rssi",
-              JSON.stringify({ nilai: parseInt(rssi) })
+              "sensor/rssi1",
+              JSON.stringify({ nilai: parseInt(rssi1) })
+            );
+            client.publish(
+              "sensor/rssi2",
+              JSON.stringify({ nilai: parseInt(rssi2) })
+            );
+            client.publish(
+              "sensor/rssi3",
+              JSON.stringify({ nilai: parseInt(rssi3) })
             );
 
             showStatus("Data sent successfully!", "success");
-            console.log("Data sent:", { tower1, tower2, tower3, rssi });
+            console.log("Data sent:", { tower1, tower2, tower3, rssi1, rssi2, rssi3 });
           } catch (error) {
             showStatus("Error sending data: " + error.message, "error");
             console.error("Error sending data:", error);

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Monitoring Gardu</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-right: 15px;
+        }
+
+        .gardu-a .card-icon { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .gardu-b .card-icon { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .gardu-c .card-icon { background: linear-gradient(135deg, #45b7d1, #2980b9); }
+        .time-card .card-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .card-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+
+        .nilai {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card-unit {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .rssi-mini {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .rssi-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .rssi-mini .nilai {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+
+
+        .alert-section {
+            margin: 30px 0;
+        }
+
+        .alert {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3); }
+            50% { box-shadow: 0 8px 35px rgba(255, 107, 107, 0.5); }
+            100% { box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3); }
+        }
+
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+        }
+
+        .history-section {
+            margin-top: 50px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .history-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        thead th {
+            color: white;
+            padding: 20px 15px;
+            font-weight: 600;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        tbody td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .value-cell {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .timestamp-cell {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .history-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        /* Style for the original isbroken class when it contains content */
+        .isbroken:not(:empty) {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white !important;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+            margin: 15px 0;
+        }
+
+        /* When JavaScript sets inline styles, respect them but add background */
+        .isbroken[style*="color: red"] {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>IoT Tower Monitoring</h1>
+            <p class="subtitle">Real-time potentiometer monitoring dashboard</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card gardu-a">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div>
+                        <div class="card-title">Gardu A</div>
+                    </div>
+                </div>
+                <div class="card-value"><span id="pot1" class="nilai">0</span></div>
+                <div class="card-unit">Units</div>
+                <div class="rssi-mini">
+                    <span class="rssi-label">RSSI:</span>
+                    <span id="rssi1" class="nilai">0</span> dBm
+                </div>
+            </div>
+
+            <div class="card gardu-b">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div>
+                        <div class="card-title">Gardu B</div>
+                    </div>
+                </div>
+                <div class="card-value"><span id="pot2" class="nilai">0</span></div>
+                <div class="card-unit">Units</div>
+                <div class="rssi-mini">
+                    <span class="rssi-label">RSSI:</span>
+                    <span id="rssi2" class="nilai">0</span> dBm
+                </div>
+            </div>
+
+            <div class="card gardu-c">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div>
+                        <div class="card-title">Gardu C</div>
+                    </div>
+                </div>
+                <div class="card-value"><span id="pot3" class="nilai">0</span></div>
+                <div class="card-unit">Units</div>
+                <div class="rssi-mini">
+                    <span class="rssi-label">RSSI:</span>
+                    <span id="rssi3" class="nilai">0</span> dBm
+                </div>
+            </div>
+
+            <div class="card time-card">
+                <div class="card-header">
+                    <div class="card-icon">🕐</div>
+                    <div>
+                        <div class="card-title">Last Update</div>
+                    </div>
+                </div>
+                <div class="card-value" id="time" style="font-size: 1.2rem;">-</div>
+                <div class="card-unit">Timestamp</div>
+            </div>
+        </div>
+
+        <div class="alert-section">
+            <div class="isbroken"></div>
+        </div>
+
+        <div class="controls">
+            <button id="saveButton" class="btn">Save to History</button>
+        </div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h2 class="history-title">Historical Data</h2>
+                <button id="refreshButton" class="btn btn-secondary">Refresh Data</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Gardu A</th>
+                            <th>Gardu B</th>
+                            <th>Gardu C</th>
+                            <th>RSSI A</th>
+                            <th>RSSI B</th>
+                            <th>RSSI C</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">Loading historical data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="mqtt.js"></script>
+</body>
+</html>
