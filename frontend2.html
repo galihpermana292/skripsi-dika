@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoT Monitoring Gardu</title>
+    <title>Sistem Monitoring Gardu</title>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <style>
         * {
@@ -340,7 +340,7 @@
                     </div>
                 </div>
                 <div class="card-value"><span id="pot1" class="nilai">0</span></div>
-                <div class="card-unit">Units</div>
+                <div class="card-unit">Satuan</div>
                 <div class="rssi-mini">
                     <span class="rssi-label">RSSI:</span>
                     <span id="rssi1" class="nilai">0</span> dBm
@@ -355,7 +355,7 @@
                     </div>
                 </div>
                 <div class="card-value"><span id="pot2" class="nilai">0</span></div>
-                <div class="card-unit">Units</div>
+                <div class="card-unit">Satuan</div>
                 <div class="rssi-mini">
                     <span class="rssi-label">RSSI:</span>
                     <span id="rssi2" class="nilai">0</span> dBm
@@ -370,7 +370,7 @@
                     </div>
                 </div>
                 <div class="card-value"><span id="pot3" class="nilai">0</span></div>
-                <div class="card-unit">Units</div>
+                <div class="card-unit">Satuan</div>
                 <div class="rssi-mini">
                     <span class="rssi-label">RSSI:</span>
                     <span id="rssi3" class="nilai">0</span> dBm
@@ -381,11 +381,11 @@
                 <div class="card-header">
                     <div class="card-icon">🕐</div>
                     <div>
-                        <div class="card-title">Last Update</div>
+                        <div class="card-title">Pembaruan Terakhir</div>
                     </div>
                 </div>
                 <div class="card-value" id="time" style="font-size: 1.2rem;">-</div>
-                <div class="card-unit">Timestamp</div>
+                <div class="card-unit">Waktu</div>
             </div>
         </div>
 
@@ -394,12 +394,12 @@
         </div>
 
         <div class="controls">
-            <button id="saveButton" class="btn">Save to History</button>
+            <button id="saveButton" class="btn">Simpan Ke Riwayat</button>
         </div>
 
         <div class="history-section">
             <div class="history-header">
-                <h2 class="history-title">Historical Data</h2>
+                <h2 class="history-title">Histori Data</h2>
                 <button id="refreshButton" class="btn btn-secondary">Refresh Data</button>
             </div>
 
@@ -413,12 +413,12 @@
                             <th>RSSI A</th>
                             <th>RSSI B</th>
                             <th>RSSI C</th>
-                            <th>Timestamp</th>
+                            <th>Waktu</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
                         <tr>
-                            <td colspan="7" class="loading">Loading historical data...</td>
+                            <td colspan="7" class="loading">Loading histori data...</td>
                         </tr>
                     </tbody>
                 </table>
