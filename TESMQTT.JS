@@ -119,9 +119,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // Function to save data to MongoDB via the API
 function saveToHistory() {
   const data = {
-    garduA: parseInt(currentValues.garduA),
-    garduB: parseInt(currentValues.garduB),
-    garduC: parseInt(currentValues.garduC),
+    tower1: parseInt(currentValues.garduA),
+    tower2: parseInt(currentValues.garduB),
+    tower3: parseInt(currentValues.garduC),
     rssi1: parseInt(currentValues.rssi1),
     rssi2: parseInt(currentValues.rssi2),
     rssi3: parseInt(currentValues.rssi3),
