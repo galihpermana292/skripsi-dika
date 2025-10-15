@@ -75,22 +75,23 @@ function updateTime() {
 }
 
 // Function to check if gardu value is 0 (broken)
-function checkGarduStatus(garduNumber, value) {
+function checkGarduStatus() {
   const isBrokenElement = document.querySelector(".isbroken");
-  const garduName = garduNumber === 1 ? 'A' : garduNumber === 2 ? 'B' : 'C';
+  const brokenList = [];
 
-  if (value === 0) {
-    isBrokenElement.textContent = `Ada kerusakan pada Gardu ${garduName}`;
+  if (currentValues.garduA === 0) brokenList.push("Gardu A");
+  if (currentValues.garduB === 0) brokenList.push("Gardu B");
+  if (currentValues.garduC === 0) brokenList.push("Gardu C");
+
+  if (brokenList.length > 0) {
+    isBrokenElement.textContent = `Ada kerusakan pada ${brokenList.join(", ")}`;
     isBrokenElement.style.color = "red";
     isBrokenElement.style.fontWeight = "bold";
   } else {
-    // Check if any other gardu is broken
-    const otherBrokenGardu = checkOtherGardus(garduNumber);
-    if (!otherBrokenGardu) {
-      isBrokenElement.textContent = "";
-    }
+    isBrokenElement.textContent = "";
   }
 }
+
 
   
 
