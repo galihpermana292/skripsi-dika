@@ -11,17 +11,17 @@ let currentValues = {
   rssi3: 0,
 };
 
-
-let brokenGardu = [];
-
 client.on("connect", () => {
   console.log("Terhubung ke MQTT broker");
-  client.subscribe("sensor/pot1");  // Gardu A
-  client.subscribe("sensor/pot2");  // Gardu B
-  client.subscribe("sensor/pot3");  // Gardu C
-  client.subscribe("sensor/rssi1"); // RSSI Gardu A
-  client.subscribe("sensor/rssi2"); // RSSI Gardu B
-  client.subscribe("sensor/rssi3"); // RSSI Gardu C
+
+  // ✅ FIX TOPIK SUBSCRIBE
+  client.subscribe("sensor/pot1"); 
+  client.subscribe("sensor/pot2");
+  client.subscribe("sensor/pot3");
+
+  client.subscribe("sensor/rssi1");
+  client.subscribe("sensor/rssi2");
+  client.subscribe("sensor/rssi3");
 });
 
 client.on("message", (topic, message) => {
@@ -29,41 +29,45 @@ client.on("message", (topic, message) => {
     const data = JSON.parse(message.toString());
     console.log(data, "data?", message);
 
-    // Update timestamp
     document.getElementById("time").innerText = new Date().toLocaleTimeString('id-ID');
 
     switch (topic) {
       case "sensor/pot1":
         document.getElementById("pot1").innerText = data.nilai;
         currentValues.garduA = data.nilai;
-        checkGarduStatus(1, data.nilai);
+        checkGarduStatus();
         break;
+
       case "sensor/pot2":
         document.getElementById("pot2").innerText = data.nilai;
         currentValues.garduB = data.nilai;
-        checkGarduStatus(2, data.nilai);
+        checkGarduStatus();
         break;
+
       case "sensor/pot3":
         document.getElementById("pot3").innerText = data.nilai;
         currentValues.garduC = data.nilai;
-        checkGarduStatus(3, data.nilai);
+        checkGarduStatus();
         break;
+
       case "sensor/rssi1":
         document.getElementById("rssi1").innerText = data.nilai;
         currentValues.rssi1 = data.nilai;
         break;
+
       case "sensor/rssi2":
         document.getElementById("rssi2").innerText = data.nilai;
         currentValues.rssi2 = data.nilai;
         break;
+
       case "sensor/rssi3":
         document.getElementById("rssi3").innerText = data.nilai;
         currentValues.rssi3 = data.nilai;
-    brokenGardu = []
         break;
     }
-    console.log('tesr')
-    updateTime(); // update waktu setiap ada data masuk
+
+    updateTime();
+
   } catch (e) {
     console.error("Pesan MQTT bukan JSON valid:", message.toString());
   }
@@ -74,17 +78,19 @@ function updateTime() {
   document.getElementById("time").innerText = now.toLocaleTimeString('id-ID');
 }
 
-// Function to check if gardu value is 0 (broken)
+// ===============================
+// ✅ FIX NOTIFIKASI MULTI-GARDU
+// ===============================
 function checkGarduStatus() {
   const isBrokenElement = document.querySelector(".isbroken");
-  const brokenList = [];
+  let brokenList = [];
 
   if (currentValues.garduA === 0) brokenList.push("Gardu A");
   if (currentValues.garduB === 0) brokenList.push("Gardu B");
   if (currentValues.garduC === 0) brokenList.push("Gardu C");
 
   if (brokenList.length > 0) {
-    isBrokenElement.textContent = `Ada kerusakan pada ${brokenList.join(", ")}`;
+    isBrokenElement.textContent = `⚠️ Ada kerusakan pada ${brokenList.join(", ")}`;
     isBrokenElement.style.color = "red";
     isBrokenElement.style.fontWeight = "bold";
   } else {
@@ -92,10 +98,13 @@ function checkGarduStatus() {
   }
 }
 
+// ===============================
+// ❌ checkOtherGardus DIMATIKAN
+// (agar notifikasi TIDAK tertimpa)
+// ===============================
 
-  
-
-// Helper function to check if other gardus are broken
+// FUNCTION INI TIDAK DIPAKAI LAGI
+/*
 function checkOtherGardus(currentGardu) {
   if (currentGardu !== 1 && currentValues.garduA === 0) {
     document.querySelector(".isbroken").textContent = "Ada kerusakan pada Gardu A";
@@ -111,6 +120,7 @@ function checkOtherGardus(currentGardu) {
   }
   return false;
 }
+*/
 
 // Initialize buttons and load history data when the page loads
 document.addEventListener("DOMContentLoaded", () => {
@@ -120,23 +130,20 @@ document.addEventListener("DOMContentLoaded", () => {
   saveButton.addEventListener("click", saveToHistory);
   refreshButton.addEventListener("click", fetchHistoryData);
 
-  // Load history data when the page loads
   fetchHistoryData();
 });
 
 // Function to save data to MongoDB via the API
 function saveToHistory() {
   const data = {
-    tower1: parseInt(currentValues.garduA),
-    tower2: parseInt(currentValues.garduB),
-    tower3: parseInt(currentValues.garduC),
+    garduA: parseInt(currentValues.garduA),
+    garduB: parseInt(currentValues.garduB),
+    garduC: parseInt(currentValues.garduC),
     rssi1: parseInt(currentValues.rssi1),
     rssi2: parseInt(currentValues.rssi2),
     rssi3: parseInt(currentValues.rssi3),
   };
 
-  // https://skripsi-dika-production.up.railway.app/ atau
-  // localhost:5000
   fetch("https://skripsi-dika-production.up.railway.app/api/data", {
     method: "POST",
     headers: {
@@ -159,14 +166,11 @@ function saveToHistory() {
       alert("Error menyimpan data ke riwayat: " + error.message);
     })
     .finally(() => {
-      // Refresh the history data after saving
       fetchHistoryData();
     });
 }
 
-// Function to fetch history data from the API
 function fetchHistoryData() {
-  // Show loading indicator in the table
   const tableBody = document.getElementById("historyTableBody");
   tableBody.innerHTML =
     '<tr><td colspan="7" style="text-align: center; padding: 10px;">Memuat data...</td></tr>';
@@ -188,30 +192,24 @@ function fetchHistoryData() {
     });
 }
 
-// Function to display history data in the table
 function displayHistoryData(data) {
   const tableBody = document.getElementById("historyTableBody");
 
-  // Clear the table
   tableBody.innerHTML = "";
 
-  // Check if there's no data
   if (!data || data.length === 0) {
     tableBody.innerHTML =
       '<tr><td colspan="7" style="text-align: center; padding: 10px;">Tidak ada data riwayat tersedia</td></tr>';
     return;
   }
 
-  // Add each data item to the table
   data.forEach((item) => {
     const row = document.createElement("tr");
 
-    // Format the timestamp
     const timestamp = new Date(item.timestamp);
     const formattedDate = timestamp.toLocaleDateString('id-ID');
     const formattedTime = timestamp.toLocaleTimeString('id-ID');
 
-    // Handle both old and new data structure for backward compatibility
     const garduA = item.garduA !== undefined ? item.garduA : item.tower1 || 0;
     const garduB = item.garduB !== undefined ? item.garduB : item.tower2 || 0;
     const garduC = item.garduC !== undefined ? item.garduC : item.tower3 || 0;
@@ -219,7 +217,6 @@ function displayHistoryData(data) {
     const rssi2 = item.rssi2 !== undefined ? item.rssi2 : item.rssi || 0;
     const rssi3 = item.rssi3 !== undefined ? item.rssi3 : item.rssi || 0;
 
-    // Create row content
     row.innerHTML = `
       <td style="border: 1px solid #ddd; padding: 8px;">${garduA}</td>
       <td style="border: 1px solid #ddd; padding: 8px;">${garduB}</td>
@@ -230,7 +227,6 @@ function displayHistoryData(data) {
       <td style="border: 1px solid #ddd; padding: 8px;">${formattedDate} ${formattedTime}</td>
     `;
 
-    // Highlight rows with broken gardus
     if (garduA === 0 || garduB === 0 || garduC === 0) {
       row.style.backgroundColor = "#ffebee";
     }
