@@ -11,8 +11,6 @@ let currentValues = {
   rssi3: 0,
 };
 
-let brokenGardu = [];
-
 client.on("connect", () => {
   console.log("Terhubung ke MQTT broker");
   client.subscribe("sensor/pot1");  // Gardu A
@@ -58,10 +56,8 @@ client.on("message", (topic, message) => {
       case "sensor/rssi3":
         document.getElementById("rssi3").innerText = data.nilai;
         currentValues.rssi3 = data.nilai;
-    brokenGardu = []
         break;
     }
-    console.log('tesr')
     updateTime(); // update waktu setiap ada data masuk
   } catch (e) {
     console.error("Pesan MQTT bukan JSON valid:", message.toString());
@@ -76,14 +72,14 @@ function updateTime() {
 // Function to check if gardu value is 0 (broken)
 function checkGarduStatus() {
   const isBrokenElement = document.querySelector(".isbroken");
-  const brokenList = [];
+  let brokenList = [];
 
   if (currentValues.garduA === 0) brokenList.push("Gardu A");
   if (currentValues.garduB === 0) brokenList.push("Gardu B");
   if (currentValues.garduC === 0) brokenList.push("Gardu C");
 
   if (brokenList.length > 0) {
-    isBrokenElement.textContent = `Ada kerusakan pada ${brokenList.join(", ")}`;
+    isBrokenElement.textContent = `⚠️ Ada kerusakan pada ${brokenList.join(", ")}`;
     isBrokenElement.style.color = "red";
     isBrokenElement.style.fontWeight = "bold";
   } else {
@@ -91,7 +87,6 @@ function checkGarduStatus() {
   }
 }
 
-  
 
 // Helper function to check if other gardus are broken
 function checkOtherGardus(currentGardu) {
@@ -125,9 +120,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // Function to save data to MongoDB via the API
 function saveToHistory() {
   const data = {
-    tower1: parseInt(currentValues.garduA),
-    tower2: parseInt(currentValues.garduB),
-    tower3: parseInt(currentValues.garduC),
+    garduA: parseInt(currentValues.garduA),
+    garduB: parseInt(currentValues.garduB),
+    garduC: parseInt(currentValues.garduC),
     rssi1: parseInt(currentValues.rssi1),
     rssi2: parseInt(currentValues.rssi2),
     rssi3: parseInt(currentValues.rssi3),
