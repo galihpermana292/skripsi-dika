@@ -1,26 +1,32 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
 
+// Load environment variables
+dotenv.config();
+
+// Initialize Express app
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// CORS WIDE OPEN (Fix Error Netlify + Railway)
+// Connect to MongoDB
+connectDB();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// ROUTES
-app.use("/api/data", require("./routes/data"));
-
-// CONNECT MONGO
-mongoose.connect(process.env.MONGO_URL)
-  .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
-
-// ROOT ROUTE
-app.get("/", (req, res) => {
-  res.send("API is running");
+// Basic route
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to the API' });
 });
 
-// SERVER START
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Define Routes
+app.use('/api/data', require('./routes/data'));
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
