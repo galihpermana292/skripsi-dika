@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 
 const DataSchema = new mongoose.Schema({
-  tower1: {
+  garduA: {
     type: Number,
     required: true
   },
-  tower2: {
+  garduB: {
     type: Number,
     required: true
   },
-  tower3: {
+  garduC: {
     type: Number,
     required: true
   },
