@@ -1,5 +1,5 @@
 const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
-console.log("frontend2");
+console.log("frontend");
 
 // Store the latest values
 let currentValues = {
