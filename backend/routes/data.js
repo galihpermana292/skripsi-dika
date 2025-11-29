@@ -19,13 +19,13 @@ router.get('/', async (req, res) => {
 // @desc    Add new data
 // @access  Public
 router.post('/', async (req, res) => {
-  const { tower1, tower2, tower3, rssi1, rssi2, rssi3 } = req.body;
+  const { garduA, garduB, garduC, rssi1, rssi2, rssi3 } = req.body;
 
   try {
     const newData = new Data({
-      tower1,
-      tower2,
-      tower3,
+      garduA,
+      garduB,
+      garduC,
       rssi1,
       rssi2,
       rssi3,
